@@ -14,4 +14,4 @@ spec:
       - values-staging.yaml
     path: helm
     repoURL: https://github.com/hr-skinke/techtrends
-    targetRevision: HEAD
+    targetRevision: main
