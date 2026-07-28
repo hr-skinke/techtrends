@@ -12,3 +12,6 @@ spec:
     helm:
       valueFiles:
       - values-prod.yaml
+    path: helm
+    repoURL: https://github.com/hr-skinke/techtrends
+    targetRevision: main
