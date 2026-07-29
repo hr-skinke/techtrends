@@ -1,4 +1,5 @@
 import sqlite3
+import sys
 import logging
 
 from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
@@ -6,6 +7,16 @@ from werkzeug.exceptions import abort
 
 
 db_connection_count = 0
+
+formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(formatter)
+
+stderr_handler = logging.StreamHandler(sys.stderr)
+stderr_handler.setLevel(logging.WARNING)
+stderr_handler.setFormatter(formatter)
 
 werkzeug_logger = logging.getLogger('werkzeug')
 werkzeug_logger.setLevel(logging.INFO)
@@ -31,6 +42,9 @@ def get_post(post_id):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
+app.logger.handlers.clear()
+app.logger.addHandler(stdout_handler)
+app.logger.addHandler(stderr_handler)
 app.logger.setLevel(logging.DEBUG)
 
 # Define the main route of the web application 
@@ -47,10 +61,10 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     if post is None:
-      app.logger.info('Article was not found!')
+      app.logger.warning('Article with id %s was not found', post_id)
       return render_template('404.html'), 404
     else:
-      app.logger.info('Article "' + post['title'] + '" retrieved!')
+      app.logger.info('Article "%s" retrieved', post['title'])
       return render_template('post.html', post=post)
 
 # Define the About Us page
@@ -74,7 +88,7 @@ def create():
                          (title, content))
             connection.commit()
             connection.close()
-            app.logger.info('Article "' + title + '" was created!')
+            app.logger.info('Article "%s" retrieved', post['title'])
             return redirect(url_for('index'))
 
     return render_template('create.html')
